@@ -2,6 +2,8 @@
 
 **When a customer messages at 9pm and nobody answers, they often book somewhere else. Front Desk answers the everyday questions using only what the owner tells it, and passes bookings and anything tricky straight to the owner.**
 
+**Try the demo:** https://front-desk-agent.vercel.app *(simple mode: no AI key yet, so it answers with keyword rules)*
+
 ## How the owner uses it
 
 1. **Tell it** your hours, what you offer and what it costs, and any rules (like a cancellation policy).
@@ -50,7 +52,7 @@ npm test                    # 10 tests: prompt, JSON check, fallback, webhook, l
 python tests/e2e_check.py   # browser test in all three modes, with a stand-in AI and webhook
 ```
 
-Last full check (2026-09-23): all 10 unit tests passed, and the browser test passed in simple, live (stand-in AI), and offline modes. It confirmed that unsafe AI output never reached the customer and that bookings and hand-offs reached the owner's webhook. An axe accessibility scan found no WCAG A or AA issues.
+Last full check (2026-09-23): all 10 unit tests passed, and the browser test passed in simple, live (stand-in AI), and offline modes. It confirmed that unsafe AI output never reached the customer and that bookings and hand-offs reached the owner's webhook. An axe accessibility scan found no WCAG A or AA issues. The live Vercel demo was also checked in a browser in simple mode.
 
 **Not tested yet:** answers from the real Claude API (no key has been set up) and a trial with a real business. Both are next.
 
@@ -59,7 +61,8 @@ Last full check (2026-09-23): all 10 unit tests passed, and the browser test pas
 | When | What | Status |
 | --- | --- | --- |
 | Now | Real AI endpoint, safe fallback, owner webhook, tests | Done |
-| Now | Rate limit, then deploy with a real API key | Not started |
+| Now | Public demo on Vercel (simple mode) | Done |
+| Now | Rate limit, then add a real API key | Not started |
 | Next | Two-week trial with one local business | Not started |
 | Next | Embeddable chat bubble for an existing website | Not started |
 | Later | Owner login to edit details and see all messages (Supabase) | Not started |
