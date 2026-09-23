@@ -1,0 +1,11 @@
+{
+  "name": "Sunrise Nails (example)",
+  "hours": "Tuesday to Saturday, 10am to 6pm. Closed Sunday and Monday.",
+  "services": [
+    { "name": "Gel manicure", "price": "$45" },
+    { "name": "Pedicure", "price": "$55" },
+    { "name": "Nail repair", "price": "$10 per nail" }
+  ],
+  "policies": "Please arrive 5 minutes early. Cancel at least 24 hours ahead. We accept cash, debit, and credit.",
+  "contact": "Call or text the salon during opening hours."
+}

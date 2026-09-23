@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Front Desk</title>
+<meta name="description" content="An automated front desk that answers customer questions from your own business details and passes bookings to you.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<div class="wrap" id="main">
+  <h1>Front Desk</h1>
+  <p class="tag">Answers your customers when you're busy, using only what you tell it.</p>
+  <p class="mode" id="mode" role="status">Checking connection…</p>
+
+  <div class="steps" role="tablist" aria-label="Steps">
+    <button class="step" role="tab" id="t1" aria-controls="p1" aria-selected="true" data-p="p1">1. Tell it<small>about your business</small></button>
+    <button class="step" role="tab" id="t2" aria-controls="p2" aria-selected="false" data-p="p2">2. Try it<small>pretend to be a customer</small></button>
+    <button class="step" role="tab" id="t3" aria-controls="p3" aria-selected="false" data-p="p3">3. Messages<small>who asked what</small></button>
+  </div>
+
+  <section class="card" id="p1" role="tabpanel" aria-labelledby="t1">
+    <h2>Tell it about your business</h2>
+    <p>The helper only answers with what you write here. If something isn't here, it passes the question to you.</p>
+    <label for="name">Business name</label>
+    <input id="name">
+    <label for="hours">Opening hours</label>
+    <input id="hours">
+    <label for="services">What you offer and what it costs</label>
+    <textarea id="services" aria-describedby="svcHint"></textarea>
+    <p class="hint" id="svcHint">One item per line, like: Pedicure - $55</p>
+    <label for="policies">Rules customers should know <span class="opt">(optional)</span></label>
+    <textarea id="policies" class="short"></textarea>
+    <button class="go wide" id="to2">Next: try it out</button>
+  </section>
+
+  <section class="card" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <h2>Try it out</h2>
+    <p>Pretend to be a customer. Tap a question or type your own.</p>
+    <div class="chips" id="chips"></div>
+    <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Conversation" tabindex="0"></div>
+    <form class="row" id="form">
+      <label class="sr" for="say">Your message</label>
+      <input id="say" autocomplete="off" maxlength="500" placeholder="Type a question here">
+      <button class="go" type="submit" id="send">Send</button>
+    </form>
+    <p class="err" id="err" role="alert" hidden></p>
+  </section>
+
+  <section class="card" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+    <h2>Who asked what</h2>
+    <p class="hint">Messages from this visit. In a live setup, bookings and hand-offs are also sent straight to you.</p>
+    <div class="counts">
+      <div class="count"><b id="cA">0</b><span>Answered</span></div>
+      <div class="count"><b id="cB">0</b><span>Want to book</span></div>
+      <div class="count"><b id="cN">0</b><span>Need you</span></div>
+    </div>
+    <div id="log"><p id="empty">No messages yet. Try it out in step 2.</p></div>
+  </section>
+
+  <footer><p>Built by <a href="https://github.com/prajuvin">Praju</a> at YHWH Digital. <a href="https://github.com/prajuvin/front-desk-agent">Source code</a>.</p></footer>
+</div>
+<script src="rules.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
