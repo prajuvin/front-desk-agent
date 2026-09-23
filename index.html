@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Front Desk</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{--ink:#12343B;--soft:#4A6469;--mint:#E4F4EC;--leaf:#1F7A5C;--leaf-dark:#155A43;--sun:#FFC94A;--paper:#FFFFFF;--line:#B9D3C7;--warn:#FFF1CC;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--mint);color:var(--ink);font:20px/1.5 "Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:2rem;margin:0;line-height:1.15}
+h2{font-size:1.4rem;margin:0 0 6px}
+p{margin:0 0 12px}
+.tag{color:var(--soft);margin:4px 0 16px}
+.practice{background:var(--warn);border:2px solid var(--sun);border-radius:var(--r);padding:10px 14px;font-size:.9rem;margin-bottom:18px}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px}
+.step{font:inherit;font-weight:700;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:var(--r);min-height:64px;padding:8px 10px;cursor:pointer;text-align:center}
+.step small{display:block;font-weight:400;color:var(--soft);font-size:.75rem}
+.step[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.step[aria-selected="true"] small{color:#D6E7E0}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:4px solid var(--sun);outline-offset:2px}
+.card{background:var(--paper);border-radius:var(--r);padding:20px;border:2px solid var(--line)}
+label{display:block;font-weight:700;margin:14px 0 4px}
+input,textarea{width:100%;font:inherit;border:2px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);background:#fff}
+textarea{min-height:120px;resize:vertical}
+.hint{color:var(--soft);font-size:.85rem;margin:4px 0 0}
+.go{font:inherit;font-weight:700;background:var(--leaf);color:#fff;border:0;border-radius:var(--r);min-height:56px;padding:0 24px;cursor:pointer;margin-top:18px}
+.go:hover{background:var(--leaf-dark)}
+.chat{display:flex;flex-direction:column;gap:10px;min-height:260px;max-height:420px;overflow:auto;padding:4px 2px 12px}
+.b{max-width:88%;padding:10px 14px;border-radius:16px}
+.b.bot{background:var(--mint);align-self:flex-start;border-bottom-left-radius:4px}
+.b.me{background:var(--ink);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.who{display:block;font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;opacity:.75;margin-bottom:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 12px}
+.chip{font:inherit;font-size:1rem;background:#fff;border:2px solid var(--leaf);color:var(--leaf-dark);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer}
+.row{display:flex;gap:10px}
+.row input{flex:1}
+.row .go{margin:0}
+.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.count{background:var(--mint);border-radius:12px;padding:10px;text-align:center}
+.count b{display:block;font-size:2rem;line-height:1.1}
+.count span{font-size:.8rem;color:var(--soft)}
+.msg{border-top:2px solid var(--mint);padding:12px 0}
+.msg:first-of-type{border-top:0}
+.pill{display:inline-block;font-size:.75rem;font-weight:700;border-radius:999px;padding:3px 10px;margin-right:6px}
+.p-a{background:#CFEBDD;color:#0F4A36}.p-b{background:#DCE9FF;color:#153E75}.p-n{background:var(--warn);color:#6B4A00;border:1px solid var(--sun)}
+.ex{font-size:.72rem;color:var(--soft)}
+.sr{position:absolute;left:-9999px}
+[hidden]{display:none!important}
+@media (max-width:480px){body{font-size:18px}.row{flex-direction:column}.go{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Front Desk</h1>
+  <p class="tag">Answers your customers when you're busy.</p>
+  <p class="practice"><b>Practice mode.</b> This is an example business and a simple rule-based helper, with no AI yet. Nothing is sent anywhere.</p>
+
+  <div class="steps" role="tablist" aria-label="Steps">
+    <button class="step" role="tab" id="t1" aria-controls="p1" aria-selected="true" data-p="p1">1. Tell it<small>about your business</small></button>
+    <button class="step" role="tab" id="t2" aria-controls="p2" aria-selected="false" data-p="p2">2. Try it<small>pretend to be a customer</small></button>
+    <button class="step" role="tab" id="t3" aria-controls="p3" aria-selected="false" data-p="p3">3. Messages<small>who asked what</small></button>
+  </div>
+
+  <section class="card" id="p1" role="tabpanel" aria-labelledby="t1">
+    <h2>Tell it about your business</h2>
+    <p>The helper only answers with what you write here. It will never make things up.</p>
+    <label for="name">Business name</label>
+    <input id="name" value="Sunrise Nails (example)">
+    <label for="hours">Opening hours</label>
+    <input id="hours" value="Tuesday to Saturday, 10am to 6pm. Closed Sunday and Monday.">
+    <label for="services">What you offer and what it costs</label>
+    <textarea id="services">Gel manicure - $45
+Pedicure - $55
+Nail repair - $10 per nail</textarea>
+    <p class="hint">One item per line, like: Name - price</p>
+    <button class="go" id="to2">Next: try it out</button>
+  </section>
+
+  <section class="card" id="p2" role="tabpanel" aria-labelledby="t2" hidden>
+    <h2>Try it out</h2>
+    <p>Pretend to be a customer. Tap a question or type your own.</p>
+    <div class="chips" id="chips"></div>
+    <div class="chat" id="chat" role="log" aria-live="polite" aria-label="Conversation"></div>
+    <form class="row" id="form">
+      <label class="sr" for="say">Your message</label>
+      <input id="say" autocomplete="off" placeholder="Type a question here">
+      <button class="go" type="submit">Send</button>
+    </form>
+  </section>
+
+  <section class="card" id="p3" role="tabpanel" aria-labelledby="t3" hidden>
+    <h2>Who asked what</h2>
+    <div class="counts">
+      <div class="count"><b id="cA">0</b><span>Answered</span></div>
+      <div class="count"><b id="cB">0</b><span>Want to book</span></div>
+      <div class="count"><b id="cN">0</b><span>Need you</span></div>
+    </div>
+    <div id="log"></div>
+  </section>
+</div>
+
+<script>
+var $=function(id){return document.getElementById(id)};
+var log=[
+ {t:"Yesterday 8:40pm",q:"Are you open on Sundays?",k:"A",ex:true},
+ {t:"Yesterday 9:15pm",q:"Can I get an appointment Saturday morning?",k:"B",ex:true},
+ {t:"Monday 2:05pm",q:"Do you do nails for a wedding party of 8?",k:"N",ex:true}
+];
+var LABEL={A:"Answered",B:"Wants to book",N:"Needs you"},CLASS={A:"p-a",B:"p-b",N:"p-n"};
+
+function show(id){
+  ["p1","p2","p3"].forEach(function(p){$(p).hidden=(p!==id)});
+  document.querySelectorAll(".step").forEach(function(b){b.setAttribute("aria-selected",b.dataset.p===id?"true":"false")});
+  if(id==="p3")renderLog();
+  window.scrollTo({top:0});
+}
+document.querySelectorAll(".step").forEach(function(b){b.addEventListener("click",function(){show(b.dataset.p)})});
+$("to2").addEventListener("click",function(){show("p2")});
+
+function services(){
+  return $("services").value.split("\n").map(function(l){return l.trim()}).filter(Boolean).map(function(l){
+    var i=l.indexOf(" - ");return i<0?{n:l,p:""}:{n:l.slice(0,i),p:l.slice(i+3)};
+  });
+}
+function has(s,words){return words.some(function(w){return s.indexOf(w)>-1})}
+function reply(q){
+  var s=q.toLowerCase(),name=$("name").value||"the owner",list=services();
+  var hit=list.filter(function(x){return x.n.toLowerCase().split(/\s+/).some(function(w){return w.length>3&&s.indexOf(w)>-1})});
+  if(has(s,["hour","open","close","when are you"]))return{k:"A",a:"We're open "+$("hours").value};
+  if(hit.length)return{k:"A",a:hit.map(function(x){return x.n+": "+x.p}).join(". ")+"."};
+  if(has(s,["price","cost","how much","menu","offer"]))return{k:"A",a:"Here's what we offer. "+list.map(function(x){return x.n+": "+x.p}).join(". ")+"."};
+  if(has(s,["book","appointment","available","saturday","tuesday","wednesday","thursday","friday","tomorrow"]))return{k:"B",a:"I'd be happy to pass a booking request to "+name+". What day and time would work for you? Someone will confirm with you."};
+  return{k:"N",a:"I'm not sure about that one, so I've asked "+name+" to reply to you personally. Thank you for your patience."};
+}
+function bubble(who,text,cls){
+  var d=document.createElement("div");d.className="b "+cls;
+  var w=document.createElement("span");w.className="who";w.textContent=who;
+  var t=document.createElement("span");t.textContent=text;
+  d.appendChild(w);d.appendChild(t);$("chat").appendChild(d);$("chat").scrollTop=$("chat").scrollHeight;
+}
+function ask(q){
+  if(!q.trim())return;
+  bubble("You",q,"me");
+  var r=reply(q);
+  bubble("Automated helper",r.a,"bot");
+  log.unshift({t:"Just now",q:q,k:r.k,ex:false});
+}
+bubble("Automated helper","Hi! I'm the automated helper for "+($("name").value||"this business")+". Ask me about hours, prices, or booking.","bot");
+["What are your hours?","How much is a gel manicure?","Can I book Saturday?","Do you do wedding parties?"].forEach(function(q){
+  var b=document.createElement("button");b.type="button";b.className="chip";b.textContent=q;
+  b.addEventListener("click",function(){ask(q)});$("chips").appendChild(b);
+});
+$("form").addEventListener("submit",function(e){e.preventDefault();var v=$("say").value;$("say").value="";ask(v)});
+
+function renderLog(){
+  var c={A:0,B:0,N:0},box=$("log");box.textContent="";
+  log.forEach(function(m){
+    c[m.k]++;
+    var d=document.createElement("div");d.className="msg";
+    var p=document.createElement("span");p.className="pill "+CLASS[m.k];p.textContent=LABEL[m.k];
+    var e=document.createElement("span");e.className="ex";e.textContent=m.t+(m.ex?" (example)":"");
+    var q=document.createElement("p");q.style.margin="6px 0 0";q.textContent="“"+m.q+"”";
+    d.appendChild(p);d.appendChild(e);d.appendChild(q);box.appendChild(d);
+  });
+  $("cA").textContent=c.A;$("cB").textContent=c.B;$("cN").textContent=c.N;
+}
+</script>
+</body>
+</html>
