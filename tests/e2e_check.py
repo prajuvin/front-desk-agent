@@ -33,6 +33,10 @@ def start(port, env):
     p = subprocess.Popen(["node", "server.js"], cwd=ROOT, env={**os.environ, "PORT": str(port), **env}, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
     time.sleep(0.8); return p
 
+def settle(pg):
+    """Wait for entry animations to finish so contrast is measured on the page at rest."""
+    pg.wait_for_function("document.getAnimations().every(a => a.playState !== 'running' || a.effect.getComputedTiming().iterations === Infinity)", timeout=5000)
+
 def last_bot(pg): return pg.locator(".b.bot").last.inner_text()
 
 with sync_playwright() as pw:
@@ -53,7 +57,7 @@ with sync_playwright() as pw:
     if pg.inner_text("#cA") != "2": fails.append("messages count wrong: " + pg.inner_text("#cA"))
     if axe:
         for step in ["#t1", "#t2", "#t3"]:
-            pg.click(step); pg.add_script_tag(content=axe)
+            pg.click(step); settle(pg); pg.add_script_tag(content=axe)
             v = pg.evaluate("axe.run(document,{runOnly:['wcag2a','wcag2aa']}).then(r=>r.violations.map(v=>v.id+': '+v.help))")
             if v: fails.append(f"a11y {step}: {v}")
     if pg.evaluate("document.documentElement.scrollWidth>window.innerWidth"): fails.append("horizontal scroll")
@@ -76,7 +80,7 @@ with sync_playwright() as pw:
     elif not (c[1]["messages"][0]["role"] == "user" and len(c[1]["messages"]) == 3): fails.append("ai: history not sent correctly")
     if "Pedicure: $55" not in c[0]["system"]: fails.append("ai: owner details missing from prompt")
     if len(seen["hook"]) != 2: fails.append(f"ai: expected 2 owner notifications (booking + hand-off), got {len(seen['hook'])}")
-    pg.screenshot(path="/tmp/fd_ai.png", full_page=True)
+    settle(pg); pg.screenshot(path="/tmp/fd_ai.png", full_page=True)
     s.terminate(); print("2. AI path checked:", len(c), "AI calls,", len(seen["hook"]), "owner notifications")
 
     # 3. opened as a file

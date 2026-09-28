@@ -46,6 +46,15 @@
     if (note) d.appendChild(el("span", "note", note));
     $("chat").appendChild(d); $("chat").scrollTop = $("chat").scrollHeight;
   }
+  function typing(on) {
+    var t = $("typing");
+    if (t) t.remove();
+    if (!on) return;
+    t = el("div", "b typing"); t.id = "typing";
+    t.appendChild(el("span", "sr", "The helper is typing"));
+    for (var i = 0; i < 3; i++) t.appendChild(el("i"));
+    $("chat").appendChild(t); $("chat").scrollTop = $("chat").scrollHeight;
+  }
   function greet() {
     bubble("Automated helper", "Hi! I'm the automated helper for " + (FD.validateProfile(profile()).name) + ". Ask me about hours, prices, or booking.", "bot");
   }
@@ -62,9 +71,10 @@
     if (!q) { $("err").textContent = "Type a question first."; $("err").hidden = false; return; }
     $("err").hidden = true;
     bubble("You", q, "me");
-    var btn = $("send"); btn.setAttribute("aria-busy", "true"); btn.disabled = true;
+    var btn = $("send"); btn.setAttribute("aria-busy", "true"); btn.disabled = true; typing(true);
     var p = profile();
     var done = function (r, mode) {
+      typing(false);
       btn.removeAttribute("aria-busy"); btn.disabled = false;
       var note = r.outcome === "booking" ? (r.ownerNotified ? "Sent to the owner." : "Booking request noted.") :
                  r.outcome === "needs_owner" ? (r.ownerNotified ? "Passed to the owner." : "Flagged for the owner.") : "";
@@ -79,7 +89,7 @@
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
       .then(function (x) {
         online = true;
-        if (!x.ok) { btn.removeAttribute("aria-busy"); btn.disabled = false; $("err").textContent = x.j.error || "Something went wrong. Try again."; $("err").hidden = false; return; }
+        if (!x.ok) { typing(false); btn.removeAttribute("aria-busy"); btn.disabled = false; $("err").textContent = x.j.error || "Something went wrong. Try again."; $("err").hidden = false; return; }
         done(x.j, x.j.mode);
       })
       .catch(function () { online = false; offline(); });
