@@ -1,4 +1,4 @@
-/* POST /api/chat  { message, history?, profile? } -> { reply, outcome, mode }
+/* POST /api/chat  { message, history?, profile? } -> { reply, outcome, mode, language, languageName, summaryEn }
    Runs as a Vercel serverless function, or through server.js locally.
    Env:
      ANTHROPIC_API_KEY   required for AI answers (without it, keyword rules answer)
@@ -50,6 +50,7 @@ async function respond(body, env, fetchImpl) {
     return { status: 400, json: { error: e.message } };
   }
 
+  const guess = FD.detectLanguage(message);
   let result = null, mode = "rules";
   if (env.ANTHROPIC_API_KEY) {
     // Anthropic requires the conversation to start with a user turn.
@@ -57,7 +58,7 @@ async function respond(body, env, fetchImpl) {
     while (history.length && history[0].role !== "user") history.shift();
     const messages = history.concat([{ role: "user", content: message }]);
     try {
-      result = await askClaude({ apiKey: env.ANTHROPIC_API_KEY, model: env.CLAUDE_MODEL || "claude-haiku-4-5", system: FD.buildSystemPrompt(profile), messages, fetchImpl });
+      result = await askClaude({ apiKey: env.ANTHROPIC_API_KEY, model: env.CLAUDE_MODEL || "claude-haiku-4-5", system: FD.buildSystemPrompt(profile, guess), messages, fetchImpl });
       if (result) mode = "ai";
     } catch (e) {
       result = null; // fall through to the safe rules answer
@@ -66,17 +67,20 @@ async function respond(body, env, fetchImpl) {
   if (!result) {
     // No key: plain rules. Key set but the AI failed or broke the format: safe rules answer, labelled as such.
     if (env.ANTHROPIC_API_KEY) mode = "ai_fallback";
-    result = FD.rulesReply(profile, message);
+    result = FD.rulesReply(profile, message, guess);
   }
+
+  const language = result.language || guess;
+  const summaryEn = result.summary_en || FD.rulesReply(profile, message, language).summary_en;
 
   let notified = false;
   if (result.outcome !== "answered") {
     notified = await notifyOwner({
       url: env.OWNER_WEBHOOK_URL, fetchImpl,
-      payload: { business: profile.name, outcome: result.outcome, customerMessage: message, reply: result.reply, at: new Date().toISOString() },
+      payload: { business: profile.name, outcome: result.outcome, summaryEn, language, languageName: FD.langName(language), customerMessage: message, reply: result.reply, at: new Date().toISOString() },
     });
   }
-  return { status: 200, json: { reply: result.reply, outcome: result.outcome, mode, ownerNotified: notified } };
+  return { status: 200, json: { reply: result.reply, outcome: result.outcome, mode, language, languageName: FD.langName(language), summaryEn, ownerNotified: notified } };
 }
 
 module.exports = async function handler(req, res) {

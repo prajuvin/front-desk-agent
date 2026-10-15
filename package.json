@@ -1,6 +1,6 @@
 {
   "name": "front-desk-agent",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "description": "An automated front desk that answers customer questions from the owner's own details and passes bookings to the owner.",
   "scripts": { "start": "node server.js", "test": "node --test tests/*.test.js" },

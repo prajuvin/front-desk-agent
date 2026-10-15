@@ -39,11 +39,20 @@
   $("to2").addEventListener("click", function () { show("p2"); });
 
   // ---------- chat ----------
-  function bubble(who, text, cls, note) {
+  var BCP = { en: "en", zh: "zh-Hans", yue: "yue-Hant", tl: "tl", es: "es", ta: "ta", pt: "pt" };
+  function bubble(who, text, cls, note, lang, owner) {
     var d = el("div", "b " + cls);
     d.appendChild(el("span", "who", who));
-    d.appendChild(el("span", null, text));
+    var t = el("span", null, text);
+    if (lang && BCP[lang]) t.lang = BCP[lang];
+    d.appendChild(t);
     if (note) d.appendChild(el("span", "note", note));
+    if (owner) {
+      var o = el("span", "owner");
+      o.appendChild(el("b", null, "What you see, in English: "));
+      o.appendChild(document.createTextNode(owner));
+      d.appendChild(o);
+    }
     $("chat").appendChild(d); $("chat").scrollTop = $("chat").scrollHeight;
   }
   function typing(on) {
@@ -56,7 +65,7 @@
     $("chat").appendChild(t); $("chat").scrollTop = $("chat").scrollHeight;
   }
   function greet() {
-    bubble("Automated helper", "Hi! I'm the automated helper for " + (FD.validateProfile(profile()).name) + ". Ask me about hours, prices, or booking.", "bot");
+    bubble("Automated helper", "Hi! I'm the automated helper for " + (FD.validateProfile(profile()).name) + ". Ask me about hours, prices, or booking, in English, 中文, 粵語, Tagalog, Español, தமிழ் or Português.", "bot");
   }
   function setMode(m) {
     var box = $("mode");
@@ -78,9 +87,10 @@
       btn.removeAttribute("aria-busy"); btn.disabled = false;
       var note = r.outcome === "booking" ? (r.ownerNotified ? "Sent to the owner." : "Booking request noted.") :
                  r.outcome === "needs_owner" ? (r.ownerNotified ? "Passed to the owner." : "Flagged for the owner.") : "";
-      bubble("Automated helper", r.reply, "bot", note);
+      var lang = r.language || "en", summary = r.summaryEn || r.summary_en || "";
+      bubble("Automated helper", r.reply, "bot", note, lang, !summary ? "" : summary.indexOf("(in ") > -1 || lang === "en" ? summary : FD.langName(lang) + ". " + summary);
       history.push({ role: "user", content: q }, { role: "assistant", content: r.reply });
-      log.unshift({ q: q, outcome: r.outcome, at: new Date() });
+      log.unshift({ q: q, outcome: r.outcome, at: new Date(), lang: lang, summary: summary });
       setMode(mode);
     };
     var offline = function () { done(FD.rulesReply(FD.validateProfile(p), q), "offline"); };
@@ -94,8 +104,9 @@
       })
       .catch(function () { online = false; offline(); });
   }
-  ["What are your hours?", "How much is a pedicure?", "Can I book for Saturday?", "Do you do nails for a wedding party?"].forEach(function (q) {
-    var b = el("button", "chip", q); b.type = "button";
+  [["What are your hours?", "en"], ["你们几点开门？", "zh"], ["修腳幾錢呀？", "yue"], ["Magkano po ang pedicure?", "tl"], ["¿Puedo reservar para el sábado?", "es"], ["நீங்கள் எத்தனை மணிக்கு திறப்பீர்கள்?", "ta"], ["Vocês fazem unhas para casamento?", "pt"]].forEach(function (pair) {
+    var q = pair[0];
+    var b = el("button", "chip", q); b.type = "button"; b.lang = BCP[pair[1]];
     b.addEventListener("click", function () { ask(q); });
     $("chips").appendChild(b);
   });
@@ -110,8 +121,10 @@
       c[m.outcome]++;
       var d = el("div", "msg");
       d.appendChild(el("span", "pill p-" + m.outcome, LABEL[m.outcome]));
+      if (m.lang) d.appendChild(el("span", "pill p-lang", FD.langName(m.lang)));
       d.appendChild(el("span", "time", m.at.toLocaleTimeString("en-CA", { hour: "numeric", minute: "2-digit" })));
-      var q = el("p", null, "“" + m.q + "”"); q.style.margin = "6px 0 0"; d.appendChild(q);
+      var q = el("p", null, "“" + m.q + "”"); q.style.margin = "6px 0 0"; if (m.lang) q.lang = BCP[m.lang]; d.appendChild(q);
+      if (m.summary) { var en = el("p", "owner", m.summary); en.style.margin = "4px 0 0"; d.appendChild(en); }
       box.appendChild(d);
     });
     $("cA").textContent = c.answered; $("cB").textContent = c.booking; $("cN").textContent = c.needs_owner;
