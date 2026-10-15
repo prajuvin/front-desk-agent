@@ -3,11 +3,18 @@ const http = require("http");
 const fs = require("fs");
 const path = require("path");
 const handler = require("./api/chat.js");
+const callSummary = require("./api/call-summary.js");
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json" };
 const PUBLIC = path.join(__dirname, "public");
 
 http.createServer((req, res) => {
+  if (req.url.startsWith("/api/call-summary")) {
+    let raw = "";
+    req.on("data", (c) => { raw += c; if (raw.length > 200000) req.destroy(); });
+    req.on("end", () => { req.rawBody = raw; callSummary(req, res); });
+    return;
+  }
   if (req.url.startsWith("/api/chat")) {
     let raw = "";
     req.on("data", (c) => { raw += c; if (raw.length > 20000) req.destroy(); });
